@@ -51,7 +51,7 @@ private void prepareBase() {
 private void prepareBaseInternal(String credential = '') {
 
   if (stageOptional.template.isEmpty()) {
-    if (stageOptional.repo.isEmpty()) {
+    if (!stageOptional.repo.isEmpty()) {
       loadRepo(credential)
       updateDB(credential)
     } else {
@@ -64,12 +64,32 @@ private void prepareBaseInternal(String credential = '') {
   }
 
   stageOptional.extensions.each { source ->
-    if (!source.name.empty || !source.sourcePath.empty) {
-      compileExt(source, credential)
+    if (!source.name.empty) {
+      if (!source.repo.isEmpty()) {
+        loadExtRepo(source, credential)
+      } else if (!source.sourcePath.empty) {
+        compileExt(source, credential)
+      }
+      updateExt(source, credential)
     }
   }
 
   migrate(credential)
+}
+
+private void loadExtRepo(ExtensionSource source, String credential) {
+  def command = VRunner.loadExtRepo(config, source)
+
+  def auth = source.getRepo().getAuth()
+  def credentialRepo = ''
+  withCredentials([usernamePassword(credentialsId: auth, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+    credentialRepo = credentialHelper.getAuthRepoString()
+  }
+
+  command = command.replace("%credentialID%", credential)
+  command = command.replace("%credentialStorageID%", credentialRepo)
+
+  cmdRun(command)
 }
 
 private void loadRepo(credential) {
@@ -87,6 +107,12 @@ private void loadRepo(credential) {
 
 private void updateDB(credential) {
   def command = VRunner.updateDB(config, stageOptional)
+  command = command.replace("%credentialID%", credential)
+  cmdRun(command)
+}
+
+private void updateExt(ExtensionSource source, String credential) {
+  def command = VRunner.updateExt(config, source)
   command = command.replace("%credentialID%", credential)
   cmdRun(command)
 }

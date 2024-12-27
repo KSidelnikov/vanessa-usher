@@ -138,6 +138,29 @@ class VRunner {
   }
 
   /**
+   * Загрузить расширение конфигурации из хранилища 1С
+   * @param config конфигурация
+   * @param source описание расширения
+   * @return строка команды
+   */
+  static def loadExtRepo(PipelineConfiguration config, ExtensionSource source) {
+    def command = [
+        "vrunner",
+        "loadrepo",
+        "%credentialID%",
+        "--settings", config.vrunnerConfig,
+        "--ibconnection", Common.getConnectionString(config),
+        "%credentialStorageID%",
+        "--v8version", config.v8Version,
+        "--storage-name", source.repo.path,
+        "--extension", source.name,
+        "--nocacheuse"
+    ]
+
+    return command.join(" ")
+  }
+
+  /**
    * Обновить информационную базу
    * @param config конфигурация
    * @param optional настройка prepareBase
@@ -147,6 +170,26 @@ class VRunner {
     def command = [
         "vrunner",
         "updatedb",
+        "%credentialID%",
+        "--settings", config.vrunnerConfig,
+        "--ibconnection", Common.getConnectionString(config),
+        "--v8version", config.v8Version,
+        "--nocacheuse"
+    ]
+    return command.join(" ")
+  }
+
+  /**
+   * Обновить расширение информационной базы
+   * @param config конфигурация
+   * @param source описание расширения
+   * @return строка команды
+   */
+  static def updateExt(PipelineConfiguration config, ExtensionSource source) {
+    def command = [
+        "vrunner",
+        "updateext",
+        source.name,
         "%credentialID%",
         "--settings", config.vrunnerConfig,
         "--ibconnection", Common.getConnectionString(config),

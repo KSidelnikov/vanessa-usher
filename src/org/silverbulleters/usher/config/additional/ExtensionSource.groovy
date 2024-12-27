@@ -25,4 +25,7 @@ class ExtensionSource {
   """)
   String sourcePath = ''
 
+  @JsonPropertyDescription("Настройки подключения к хранилищу расширения конфигурации 1С")
+  Repo repo = new Repo()
+
 }
