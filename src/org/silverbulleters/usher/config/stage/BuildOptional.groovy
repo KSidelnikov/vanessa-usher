@@ -8,15 +8,15 @@ package org.silverbulleters.usher.config.stage
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonPropertyDescription
+import org.silverbulleters.usher.config.additional.ExtensionSource
 
 /**
  * Настройки этапа сборки CF на поставке
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 class BuildOptional extends BaseOptional {
-  /* TODO: реализовать смену рабочего каталога packman */
-  @JsonPropertyDescription("Путь к собранной cf на поставке")
-  String distPath = '.packman/1cv8.cf'
+  @JsonPropertyDescription("Путь к каталогу сборки (*.cf, *.cfe)")
+  String distPath = './build'
 
   @JsonPropertyDescription("Прерывать этап если статус сборки равен FAILURE")
   boolean errorIfJobStatusOfFailure = false

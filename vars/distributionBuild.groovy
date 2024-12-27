@@ -6,9 +6,11 @@
  */
 import groovy.transform.Field
 import org.silverbulleters.usher.config.PipelineConfiguration
+import org.silverbulleters.usher.config.additional.ExtensionSource
 import org.silverbulleters.usher.config.stage.BuildOptional
 import org.silverbulleters.usher.state.PipelineState
 import org.silverbulleters.usher.wrapper.Packman
+import org.silverbulleters.usher.wrapper.VRunner
 
 @Field
 PipelineConfiguration config
@@ -49,7 +51,7 @@ private void runBuild() {
   def auth = config.defaultInfobase.auth
   if (credentialHelper.authIsPresent(auth)) {
     withCredentials([usernamePassword(credentialsId: auth, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-      def credential = credentialHelper.getCustomAuth("-db-user", "-db-pwd")
+      def credential = credentialHelper.getCustomAuth("--db-user", "--db-pwd")
       runBuildInternal(credential)
     }
   } else {
@@ -58,15 +60,27 @@ private void runBuild() {
 }
 
 private void runBuildInternal(String credential = '') {
-  def command = Packman.setDatabase(config, credential)
-  cmdRun(command)
-
-  command = Packman.makeCf(config)
-  cmdRun(command)
+  buildConfiguration(credential)
+  config.prepareBaseOptional.extensions.each {source ->
+    buildExtension(source, credential)
+  }
 }
 
 private void archiving() {
-  if (fileExists(stageOptional.getDistPath())) {
-    archiveArtifacts stageOptional.getDistPath()
+  def distPath = stageOptional.getDistPath()
+  if (fileExists(distPath)) {
+    archiveArtifacts artifacts: "${distPath}/*.cf,${distPath}/*.cfe"
   }
+}
+
+private void buildConfiguration(String credential) {
+  def command = VRunner.makeDist(config, stageOptional)
+  command = command.replace("%credentialID%", credential)
+  cmdRun(command)
+}
+
+private void buildExtension(ExtensionSource source, String credential) {
+  def command = VRunner.unloadExt(config, stageOptional, source)
+  command = command.replace("%credentialID%", credential)
+  cmdRun(command)
 }
