@@ -4,7 +4,7 @@
  * Unauthorized copying of this file in any way is strictly prohibited.
  * Proprietary and confidential.
  */
-package org.silverbulleters.usher;
+package org.silverbulleters.usher
 
 /**
  * Константы проекта
@@ -18,7 +18,7 @@ class UsherConstant {
   /**
    * Версия проекта
    */
-  static final String PROJECT_VERSION = "2.3.0"
+  static final String PROJECT_VERSION = "2.4.0"
 
   /**
    * Путь к каталогу с отчетами в формате jUnit
