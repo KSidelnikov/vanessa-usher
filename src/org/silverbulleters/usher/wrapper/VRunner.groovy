@@ -9,6 +9,7 @@ package org.silverbulleters.usher.wrapper
 import org.silverbulleters.usher.config.PipelineConfiguration
 import org.silverbulleters.usher.config.additional.ExtensionSource
 import org.silverbulleters.usher.config.stage.BddOptional
+import org.silverbulleters.usher.config.stage.BuildOptional
 import org.silverbulleters.usher.config.stage.RunExternalDataProcessorsOptional
 import org.silverbulleters.usher.config.stage.CheckExtensionsOptional
 import org.silverbulleters.usher.config.stage.PrepareBaseOptional
@@ -138,6 +139,29 @@ class VRunner {
   }
 
   /**
+   * Загрузить расширение конфигурации из хранилища 1С
+   * @param config конфигурация
+   * @param source описание расширения
+   * @return строка команды
+   */
+  static def loadExtRepo(PipelineConfiguration config, ExtensionSource source) {
+    def command = [
+        "vrunner",
+        "loadrepo",
+        "%credentialID%",
+        "--settings", config.vrunnerConfig,
+        "--ibconnection", Common.getConnectionString(config),
+        "%credentialStorageID%",
+        "--v8version", config.v8Version,
+        "--storage-name", source.repo.path,
+        "--extension", source.name,
+        "--nocacheuse"
+    ]
+
+    return command.join(" ")
+  }
+
+  /**
    * Обновить информационную базу
    * @param config конфигурация
    * @param optional настройка prepareBase
@@ -147,6 +171,26 @@ class VRunner {
     def command = [
         "vrunner",
         "updatedb",
+        "%credentialID%",
+        "--settings", config.vrunnerConfig,
+        "--ibconnection", Common.getConnectionString(config),
+        "--v8version", config.v8Version,
+        "--nocacheuse"
+    ]
+    return command.join(" ")
+  }
+
+  /**
+   * Обновить расширение информационной базы
+   * @param config конфигурация
+   * @param source описание расширения
+   * @return строка команды
+   */
+  static def updateExt(PipelineConfiguration config, ExtensionSource source) {
+    def command = [
+        "vrunner",
+        "updateext",
+        source.name,
         "%credentialID%",
         "--settings", config.vrunnerConfig,
         "--ibconnection", Common.getConnectionString(config),
@@ -352,5 +396,47 @@ class VRunner {
     }
     return  command.join(" ")
 
+  }
+
+  /**
+   * Выгрузить файл расширения из конфигурации
+   * @param config конфигурация
+   * @param optional настройки шага
+   * @param source описание расширения
+   * @return строка команды
+   */
+  static def unloadExt(PipelineConfiguration config, BuildOptional optional, ExtensionSource source) {
+    def command = [
+        "vrunner",
+        "unloadext",
+        "${optional.distPath}/${source.name}.cfe",
+        source.name,
+        "%credentialID%",
+        "--settings", config.vrunnerConfig,
+        "--ibconnection", Common.getConnectionString(config),
+        "--v8version", config.v8Version,
+        "--nocacheuse"
+    ]
+    return command.join(" ")
+  }
+
+  /**
+   * Выгрузить файл поставки из конфигурации
+   * @param config конфигурация
+   * @param optional настройки шага
+   * @return строка команды
+   */
+  static def makeDist(PipelineConfiguration config, BuildOptional optional) {
+    def command = [
+        "vrunner",
+        "make-dist",
+        "${optional.distPath}/1cv8.cf",
+        "%credentialID%",
+        "--settings", config.vrunnerConfig,
+        "--ibconnection", Common.getConnectionString(config),
+        "--v8version", config.v8Version,
+        "--nocacheuse"
+    ]
+    return command.join(" ")
   }
 }

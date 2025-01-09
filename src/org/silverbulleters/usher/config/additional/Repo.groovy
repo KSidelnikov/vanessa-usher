@@ -20,6 +20,6 @@ class Repo {
   String auth = ''
 
   boolean isEmpty() {
-    return !path.isEmpty()
+    return path.isEmpty()
   }
 }

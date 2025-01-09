@@ -57,7 +57,7 @@
     "repo" : {
       "path" : "",
       "auth" : "",
-      "empty" : false
+      "empty" : true
     },
     "extensions" : [ ]
   },
@@ -74,7 +74,7 @@
     "repo" : {
       "path" : "",
       "auth" : "",
-      "empty" : false
+      "empty" : true
     },
     "extensions" : ""
   },
@@ -119,7 +119,7 @@
   },
   "build" : {
     "timeout" : 100,
-    "distPath" : ".packman/1cv8.cf",
+    "distPath" : "./build",
     "errorIfJobStatusOfFailure" : false
   },
   "yard" : {
